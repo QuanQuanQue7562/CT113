@@ -1,0 +1,2658 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phần mềm Quản lý Nhân sự</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 (Free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES & RESET
+                   ============================================================ */
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --primary-50: #f0f7ff;
+            --secondary: #5f6368;
+            --surface: #ffffff;
+            --background: #f8f9fa;
+            --border: #e0e4e8;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --text-light: #9aa0a6;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s ease;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --navbar-height: 64px;
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 0px;
+            --success: #0f9d58;
+            --warning: #f4b400;
+            --danger: #d93025;
+            --info: #1a73e8;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Focus-visible for keyboard navigation */
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+        }
+        a:hover {
+            color: var(--primary-dark);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+
+        /* ============================================================
+                   LAYOUT: NAVBAR
+                   ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--navbar-height);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-right: 32px;
+            flex-shrink: 0;
+        }
+        .navbar-brand i {
+            font-size: 1.5rem;
+        }
+        .navbar-brand span {
+            color: var(--text);
+            font-weight: 400;
+        }
+        .navbar-brand .brand-highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .navbar-menu .nav-link {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: var(--font);
+        }
+        .navbar-menu .nav-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .navbar-menu .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--background);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            border: 1px solid var(--border);
+        }
+        .lang-toggle button {
+            padding: 4px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .lang-toggle button.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+        .lang-toggle button:hover {
+            color: var(--primary);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px 4px 8px;
+            border-radius: 24px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        .user-badge:hover {
+            border-color: var(--primary);
+        }
+        .user-badge .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .user-badge .role-tag {
+            font-size: 0.65rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Hamburger (mobile) */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+        .hamburger:hover {
+            background: var(--background);
+        }
+
+        /* ============================================================
+                   LAYOUT: SIDEBAR
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: var(--navbar-height);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 16px 12px;
+            overflow-y: auto;
+            z-index: 900;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: var(--font);
+            text-align: left;
+        }
+        .sidebar-menu .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .sidebar-menu .menu-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .sidebar-menu .menu-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .sidebar-menu .menu-item .badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
+
+        .sidebar-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            padding: 8px 14px 4px;
+            font-weight: 600;
+        }
+
+        /* ============================================================
+                   LAYOUT: MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            padding: 24px 32px 48px;
+            flex: 1;
+            min-height: calc(100vh - var(--navbar-height));
+            transition: margin-left 0.3s ease;
+        }
+
+        /* ============================================================
+                   PAGE SECTIONS
+                   ============================================================ */
+        .page-section {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .page-header .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+        .page-header .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================================
+                   CARDS & STATS
+                   ============================================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        .stat-card .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .stat-card .stat-icon.blue {
+            background: var(--primary);
+        }
+        .stat-card .stat-icon.green {
+            background: var(--success);
+        }
+        .stat-card .stat-icon.orange {
+            background: var(--warning);
+        }
+        .stat-card .stat-icon.purple {
+            background: #7c3aed;
+        }
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .stat-card .stat-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-card .stat-change.up {
+            color: var(--success);
+        }
+        .stat-card .stat-change.down {
+            color: var(--danger);
+        }
+
+        /* ============================================================
+                   CHART (simple bar)
+                   ============================================================ */
+        .chart-container {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+        }
+        .chart-container .chart-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 180px;
+            padding-top: 8px;
+        }
+        .chart-bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .chart-bar {
+            width: 100%;
+            max-width: 48px;
+            border-radius: 4px 4px 0 0;
+            background: var(--primary);
+            transition: height 0.6s ease;
+            min-height: 4px;
+            position: relative;
+        }
+        .chart-bar-group .bar-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        .chart-bar-group .bar-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .chart-bar.green {
+            background: var(--success);
+        }
+        .chart-bar.orange {
+            background: var(--warning);
+        }
+        .chart-bar.purple {
+            background: #7c3aed;
+        }
+
+        /* ============================================================
+                   TABLE & SEARCH
+                   ============================================================ */
+        .table-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .table-toolbar .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0 14px;
+            flex: 1;
+            min-width: 200px;
+            max-width: 380px;
+            transition: var(--transition);
+        }
+        .table-toolbar .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+        }
+        .table-toolbar .search-box i {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .table-toolbar .search-box input {
+            border: none;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-family: var(--font);
+            flex: 1;
+            background: transparent;
+            color: var(--text);
+        }
+        .table-toolbar .search-box input::placeholder {
+            color: var(--text-light);
+        }
+        .table-toolbar .search-box input:focus {
+            outline: none;
+        }
+
+        .table-toolbar .filter-select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: var(--font);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            min-width: 140px;
+        }
+        .table-toolbar .filter-select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.9rem;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--background);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn:hover {
+            background: var(--border);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            color: #fff;
+        }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+        }
+        .btn-success:hover {
+            background: #0b8043;
+            border-color: #0b8043;
+            color: #fff;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+        .btn-danger:hover {
+            background: #b31412;
+            border-color: #b31412;
+            color: #fff;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: #fff;
+            border-color: var(--warning);
+        }
+        .btn-warning:hover {
+            background: #dba500;
+            border-color: #dba500;
+            color: #fff;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .btn-outline:hover {
+            background: var(--background);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        .btn-icon {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+
+        .table-wrap {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .table-wrap th {
+            background: var(--background);
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .table-wrap th:hover {
+            color: var(--text);
+        }
+        .table-wrap th i {
+            margin-left: 4px;
+            font-size: 0.7rem;
+        }
+        .table-wrap td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .table-wrap tr:last-child td {
+            border-bottom: none;
+        }
+        .table-wrap tr:hover td {
+            background: var(--primary-50);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-badge.active {
+            background: #e6f4ea;
+            color: var(--success);
+        }
+        .status-badge.inactive {
+            background: #fce8e6;
+            color: var(--danger);
+        }
+        .status-badge.pending {
+            background: #fef7e0;
+            color: var(--warning);
+        }
+        .status-badge.onleave {
+            background: #e8f0fe;
+            color: var(--primary);
+        }
+
+        .role-badge {
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .role-badge.admin {
+            background: #fce8e6;
+            color: var(--danger);
+        }
+        .role-badge.manager {
+            background: #fef7e0;
+            color: var(--warning);
+        }
+        .role-badge.employee {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .table-actions .btn {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================================
+                   PAGINATION
+                   ============================================================ */
+        .pagination-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+        .pagination-wrap .info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .pagination-wrap .pages {
+            display: flex;
+            gap: 4px;
+        }
+        .pagination-wrap .pages button {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            cursor: pointer;
+            font-family: var(--font);
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .pagination-wrap .pages button:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .pagination-wrap .pages button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+        .pagination-wrap .pages button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ============================================================
+                   MODAL
+                   ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            max-width: 640px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+        .modal-header .close-btn:hover {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-body .form-group {
+            margin-bottom: 18px;
+        }
+        .modal-body .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+        .modal-body .form-group .required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+        .modal-body .form-group input,
+        .modal-body .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: var(--surface);
+            color: var(--text);
+        }
+        .modal-body .form-group input:focus,
+        .modal-body .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+        }
+        .modal-body .form-group .error-text {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: none;
+        }
+        .modal-body .form-group.has-error input,
+        .modal-body .form-group.has-error select {
+            border-color: var(--danger);
+        }
+        .modal-body .form-group.has-error .error-text {
+            display: block;
+        }
+        .modal-body .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* ============================================================
+                   TOAST NOTIFICATIONS
+                   ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .toast {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.35s ease;
+            font-size: 0.9rem;
+        }
+        .toast.success {
+            border-left-color: var(--success);
+        }
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+        .toast .toast-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .toast .toast-icon.success {
+            color: var(--success);
+        }
+        .toast .toast-icon.error {
+            color: var(--danger);
+        }
+        .toast .toast-icon.warning {
+            color: var(--warning);
+        }
+        .toast .toast-msg {
+            flex: 1;
+        }
+        .toast .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0 4px;
+        }
+        .toast .toast-close:hover {
+            color: var(--text);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(80px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .toast.removing {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+        @keyframes slideOutRight {
+            to {
+                transform: translateX(80px);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 20px 20px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            .navbar-menu {
+                display: none;
+            }
+            .navbar-menu.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: var(--navbar-height);
+                left: 0;
+                right: 0;
+                background: var(--surface);
+                padding: 12px 20px;
+                border-bottom: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                gap: 2px;
+            }
+            .navbar-menu.open .nav-link {
+                padding: 10px 12px;
+                width: 100%;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .stat-card {
+                padding: 16px;
+            }
+            .stat-card .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .modal-body .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrap {
+                overflow-x: auto;
+            }
+            .table-wrap table {
+                font-size: 0.8rem;
+                min-width: 600px;
+            }
+            .table-wrap th,
+            .table-wrap td {
+                padding: 8px 12px;
+            }
+
+            .chart-bars {
+                height: 130px;
+                gap: 8px;
+            }
+
+            .toast-container {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                max-width: 100%;
+            }
+
+            .page-header h1 {
+                font-size: 1.4rem;
+            }
+            .page-header .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .table-toolbar .search-box {
+                max-width: 100%;
+                min-width: 120px;
+            }
+            .table-toolbar .filter-select {
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 12px 14px;
+            }
+            .stat-card .stat-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+            .stat-card .stat-number {
+                font-size: 1.2rem;
+            }
+            .stat-card .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .navbar {
+                padding: 0 12px;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+                margin-right: 12px;
+            }
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            .user-badge .role-tag {
+                display: none;
+            }
+            .user-badge {
+                padding: 4px 8px;
+            }
+
+            .modal {
+                margin: 10px;
+            }
+            .modal-header {
+                padding: 16px 18px 12px;
+            }
+            .modal-body {
+                padding: 16px 18px;
+            }
+            .modal-footer {
+                padding: 12px 18px 18px;
+            }
+
+            .pagination-wrap {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                gap: 8px;
+            }
+            .pagination-wrap .pages {
+                justify-content: center;
+            }
+
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .table-toolbar .search-box {
+                max-width: 100%;
+            }
+        }
+
+        /* ============================================================
+                   UTILITY: SKELETON LOADING (progress bar)
+                   ============================================================ */
+        .progress-bar-container {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0 16px;
+            display: none;
+        }
+        .progress-bar-container.active {
+            display: block;
+        }
+        .progress-bar-container .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* ============================================================
+                   PLACEHOLDER PAGES
+                   ============================================================ */
+        .placeholder-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            min-height: 400px;
+        }
+        .placeholder-page i {
+            font-size: 4rem;
+            color: var(--border);
+            margin-bottom: 20px;
+        }
+        .placeholder-page h2 {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .placeholder-page p {
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    NAVBAR
+    ============================================================ -->
+    <header class="navbar" role="banner">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="navbar-brand">
+            <i class="fas fa-users-cog"></i>
+            <span>HR<span class="brand-highlight">Manager</span></span>
+        </div>
+
+        <nav class="navbar-menu" id="navbarMenu" role="navigation" aria-label="Main navigation">
+            <button class="nav-link active" data-page="dashboard" tabindex="0">
+                <i class="fas fa-th-large"></i> <span data-i18n="nav.dashboard">Dashboard</span>
+            </button>
+            <button class="nav-link" data-page="employees" tabindex="0">
+                <i class="fas fa-user-friends"></i> <span data-i18n="nav.employees">Nhân viên</span>
+            </button>
+            <button class="nav-link" data-page="attendance" tabindex="0">
+                <i class="fas fa-calendar-check"></i> <span data-i18n="nav.attendance">Chấm công</span>
+            </button>
+            <button class="nav-link" data-page="leave" tabindex="0">
+                <i class="fas fa-file-alt"></i> <span data-i18n="nav.leave">Nghỉ phép</span>
+            </button>
+            <button class="nav-link" data-page="payroll" tabindex="0">
+                <i class="fas fa-coins"></i> <span data-i18n="nav.payroll">Lương</span>
+            </button>
+            <button class="nav-link" data-page="settings" tabindex="0">
+                <i class="fas fa-cog"></i> <span data-i18n="nav.settings">Cài đặt</span>
+            </button>
+        </nav>
+
+        <div class="navbar-actions">
+            <div class="lang-toggle" role="group" aria-label="Language toggle">
+                <button class="active" data-lang="vi" aria-pressed="true">VI</button>
+                <button data-lang="en" aria-pressed="false">EN</button>
+            </div>
+            <div class="user-badge" tabindex="0" role="button" aria-haspopup="true">
+                <div class="avatar" id="userAvatar">AD</div>
+                <span id="userName">Admin</span>
+                <span class="role-tag" id="userRole">HR</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    SIDEBAR
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Sidebar navigation">
+        <ul class="sidebar-menu">
+            <li class="sidebar-label" data-i18n="sidebar.main">Chính</li>
+            <li>
+                <button class="menu-item active" data-page="dashboard" tabindex="0">
+                    <i class="fas fa-th-large"></i> <span data-i18n="nav.dashboard">Dashboard</span>
+                </button>
+            </li>
+            <li>
+                <button class="menu-item" data-page="employees" tabindex="0">
+                    <i class="fas fa-user-friends"></i> <span data-i18n="nav.employees">Nhân viên</span>
+                    <span class="badge" id="empCountBadge">0</span>
+                </button>
+            </li>
+            <li>
+                <button class="menu-item" data-page="attendance" tabindex="0">
+                    <i class="fas fa-calendar-check"></i> <span data-i18n="nav.attendance">Chấm công</span>
+                </button>
+            </li>
+            <li>
+                <button class="menu-item" data-page="leave" tabindex="0">
+                    <i class="fas fa-file-alt"></i> <span data-i18n="nav.leave">Nghỉ phép</span>
+                </button>
+            </li>
+            <li>
+                <button class="menu-item" data-page="payroll" tabindex="0">
+                    <i class="fas fa-coins"></i> <span data-i18n="nav.payroll">Lương</span>
+                </button>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-label" data-i18n="sidebar.system">Hệ thống</li>
+            <li>
+                <button class="menu-item" data-page="settings" tabindex="0">
+                    <i class="fas fa-cog"></i> <span data-i18n="nav.settings">Cài đặt</span>
+                </button>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <main class="main-content" id="mainContent" role="main">
+
+        <!-- ============================================
+        PAGE: DASHBOARD
+        ============================================ -->
+        <section class="page-section active" id="page-dashboard">
+            <div class="page-header">
+                <div>
+                    <h1 data-i18n="dashboard.title">Tổng quan</h1>
+                    <p class="subtitle" data-i18n="dashboard.subtitle">Chào mừng trở lại! Dưới đây là tình hình nhân sự hôm nay.</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-outline btn-sm" id="refreshDashboardBtn">
+                        <i class="fas fa-sync-alt"></i> <span data-i18n="common.refresh">Làm mới</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-number" id="statTotalEmployees">0</div>
+                    <div class="stat-label" data-i18n="dashboard.totalEmployees">Tổng nhân viên</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-number" id="statPresent">0</div>
+                    <div class="stat-label" data-i18n="dashboard.present">Đi làm hôm nay</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> <span id="statPresentPercent">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-user-clock"></i></div>
+                    <div class="stat-number" id="statOnLeave">0</div>
+                    <div class="stat-label" data-i18n="dashboard.onLeave">Nghỉ phép</div>
+                    <div class="stat-change down"><i class="fas fa-arrow-down"></i> <span id="statLeavePercent">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-building"></i></div>
+                    <div class="stat-number" id="statDepartments">0</div>
+                    <div class="stat-label" data-i18n="dashboard.departments">Phòng ban</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <div class="chart-title" data-i18n="dashboard.chartTitle">Nhân sự theo phòng ban</div>
+                <div class="chart-bars" id="chartBars">
+                    <!-- bars injected by JS -->
+                </div>
+            </div>
+
+            <!-- Recent activity placeholder -->
+            <div style="background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:20px 24px;box-shadow:var(--shadow);">
+                <div style="font-weight:600;font-size:0.95rem;margin-bottom:8px;" data-i18n="dashboard.recentActivity">Hoạt động gần đây</div>
+                <p style="color:var(--text-secondary);font-size:0.9rem;" data-i18n="dashboard.recentPlaceholder">Chưa có hoạt động nào gần đây.</p>
+            </div>
+        </section>
+
+        <!-- ============================================
+        PAGE: EMPLOYEES
+        ============================================ -->
+        <section class="page-section" id="page-employees">
+            <div class="page-header">
+                <div>
+                    <h1 data-i18n="employees.title">Quản lý nhân viên</h1>
+                    <p class="subtitle" data-i18n="employees.subtitle">Danh sách nhân viên và thông tin chi tiết</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" id="addEmployeeBtn">
+                        <i class="fas fa-plus"></i> <span data-i18n="employees.add">Thêm nhân viên</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="progress-bar-container" id="employeeProgress">
+                <div class="progress-bar" id="employeeProgressBar"></div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="empSearch" placeholder="Tìm kiếm theo tên, mã số, phòng ban..." data-i18n-placeholder="employees.searchPlaceholder" />
+                </div>
+                <select class="filter-select" id="empFilterDept">
+                    <option value="all" data-i18n="employees.allDepts">Tất cả phòng ban</option>
+                </select>
+                <select class="filter-select" id="empFilterRole">
+                    <option value="all" data-i18n="employees.allRoles">Tất cả vai trò</option>
+                    <option value="admin">Admin/HR</option>
+                    <option value="manager">Quản lý</option>
+                    <option value="employee">Nhân viên</option>
+                </select>
+                <button class="btn btn-outline btn-sm" id="clearFiltersBtn">
+                    <i class="fas fa-undo"></i> <span data-i18n="employees.clearFilters">Xóa lọc</span>
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="code" data-i18n="employees.code">Mã số <i class="fas fa-sort"></i></th>
+                            <th data-sort="name" data-i18n="employees.name">Họ tên <i class="fas fa-sort"></i></th>
+                            <th data-sort="department" data-i18n="employees.department">Phòng ban <i class="fas fa-sort"></i></th>
+                            <th data-sort="position" data-i18n="employees.position">Vị trí <i class="fas fa-sort"></i></th>
+                            <th data-sort="role" data-i18n="employees.role">Vai trò <i class="fas fa-sort"></i></th>
+                            <th data-sort="status" data-i18n="employees.status">Trạng thái <i class="fas fa-sort"></i></th>
+                            <th data-i18n="employees.actions">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <!-- rows injected by JS -->
+                    </tbody>
+                </table>
+                <div class="pagination-wrap">
+                    <div class="info" id="paginationInfo">Hiển thị 0-0 / 0</div>
+                    <div class="pages" id="paginationControls">
+                        <!-- buttons injected -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+        PAGE: ATTENDANCE (placeholder)
+        ============================================ -->
+        <section class="page-section" id="page-attendance">
+            <div class="placeholder-page">
+                <i class="fas fa-calendar-check"></i>
+                <h2 data-i18n="attendance.title">Chấm công</h2>
+                <p data-i18n="attendance.placeholder">Tính năng đang được phát triển. Vui lòng quay lại sau.</p>
+            </div>
+        </section>
+
+        <!-- ============================================
+        PAGE: LEAVE (placeholder)
+        ============================================ -->
+        <section class="page-section" id="page-leave">
+            <div class="placeholder-page">
+                <i class="fas fa-file-alt"></i>
+                <h2 data-i18n="leave.title">Quản lý nghỉ phép</h2>
+                <p data-i18n="leave.placeholder">Tính năng đang được phát triển. Vui lòng quay lại sau.</p>
+            </div>
+        </section>
+
+        <!-- ============================================
+        PAGE: PAYROLL (placeholder)
+        ============================================ -->
+        <section class="page-section" id="page-payroll">
+            <div class="placeholder-page">
+                <i class="fas fa-coins"></i>
+                <h2 data-i18n="payroll.title">Quản lý lương</h2>
+                <p data-i18n="payroll.placeholder">Tính năng đang được phát triển. Vui lòng quay lại sau.</p>
+            </div>
+        </section>
+
+        <!-- ============================================
+        PAGE: SETTINGS (placeholder)
+        ============================================ -->
+        <section class="page-section" id="page-settings">
+            <div class="placeholder-page">
+                <i class="fas fa-cog"></i>
+                <h2 data-i18n="settings.title">Cài đặt</h2>
+                <p data-i18n="settings.placeholder">Cấu hình thông tin công ty, phòng ban, vị trí.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================================
+    MODAL: Add / Edit Employee
+    ============================================================ -->
+    <div class="modal-overlay" id="employeeModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle" data-i18n="employees.addTitle">Thêm nhân viên</h2>
+                <button class="close-btn" id="modalCloseBtn" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm" novalidate>
+                    <input type="hidden" id="editId" value="" />
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empCode" data-i18n="employees.code">Mã số <span class="required">*</span></label>
+                            <input type="text" id="empCode" placeholder="NV001" required />
+                            <div class="error-text" data-i18n="employees.codeRequired">Vui lòng nhập mã số nhân viên.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="empName" data-i18n="employees.name">Họ tên <span class="required">*</span></label>
+                            <input type="text" id="empName" placeholder="Nguyễn Văn A" required />
+                            <div class="error-text" data-i18n="employees.nameRequired">Vui lòng nhập họ tên nhân viên.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empDepartment" data-i18n="employees.department">Phòng ban <span class="required">*</span></label>
+                            <select id="empDepartment" required>
+                                <option value="">-- Chọn --</option>
+                            </select>
+                            <div class="error-text" data-i18n="employees.deptRequired">Vui lòng chọn phòng ban.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPosition" data-i18n="employees.position">Vị trí <span class="required">*</span></label>
+                            <input type="text" id="empPosition" placeholder="Nhân viên kỹ thuật" required />
+                            <div class="error-text" data-i18n="employees.positionRequired">Vui lòng nhập vị trí công việc.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empEmail" data-i18n="employees.email">Email <span class="required">*</span></label>
+                            <input type="email" id="empEmail" placeholder="example@company.com" required />
+                            <div class="error-text" data-i18n="employees.emailRequired">Vui lòng nhập email hợp lệ.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPhone" data-i18n="employees.phone">Số điện thoại</label>
+                            <input type="text" id="empPhone" placeholder="0901234567" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empRole" data-i18n="employees.role">Vai trò <span class="required">*</span></label>
+                            <select id="empRole" required>
+                                <option value="employee">Nhân viên</option>
+                                <option value="manager">Quản lý</option>
+                                <option value="admin">Admin/HR</option>
+                            </select>
+                            <div class="error-text" data-i18n="employees.roleRequired">Vui lòng chọn vai trò.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="empStatus" data-i18n="employees.status">Trạng thái <span class="required">*</span></label>
+                            <select id="empStatus" required>
+                                <option value="active">Đang làm việc</option>
+                                <option value="inactive">Đã nghỉ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="empJoinDate" data-i18n="employees.joinDate">Ngày vào làm</label>
+                        <input type="date" id="empJoinDate" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modalCancelBtn" data-i18n="common.cancel">Hủy</button>
+                <button class="btn btn-primary" id="modalSaveBtn" data-i18n="common.save">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    TOAST CONTAINER
+    ============================================================ -->
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        /**
+         * ============================================================
+         * PHẦN MỀM QUẢN LÝ NHÂN SỰ - Full JavaScript
+         * ============================================================
+         * Kiến trúc: State-based SPA với dữ liệu lưu trong localStorage.
+         * Hỗ trợ: Đa ngôn ngữ (VI/EN), phân quyền, CRUD, tìm kiếm, phân trang.
+         * ============================================================
+         */
+
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // 1. DỮ LIỆU MẪU & STATE
+            // ============================================================
+
+            const DEFAULT_DEPARTMENTS = ['Phòng Kỹ thuật', 'Phòng Kinh doanh', 'Phòng Nhân sự', 'Phòng Tài chính', 'Phòng Marketing'];
+            const DEFAULT_POSITIONS = ['Nhân viên', 'Chuyên viên', 'Trưởng phòng', 'Giám đốc', 'Thực tập sinh'];
+
+            // Dữ liệu mẫu nhân viên
+            const SAMPLE_EMPLOYEES = [
+                { id: 1, code: 'NV001', name: 'Nguyễn Văn An', department: 'Phòng Kỹ thuật', position: 'Trưởng phòng',
+                    email: 'an.nguyen@company.com', phone: '0912345678', role: 'admin', status: 'active',
+                    joinDate: '2020-01-15' },
+                { id: 2, code: 'NV002', name: 'Trần Thị Bình', department: 'Phòng Kinh doanh', position: 'Chuyên viên',
+                    email: 'binh.tran@company.com', phone: '0923456789', role: 'manager', status: 'active',
+                    joinDate: '2020-03-20' },
+                { id: 3, code: 'NV003', name: 'Lê Văn Cường', department: 'Phòng Kỹ thuật', position: 'Nhân viên',
+                    email: 'cuong.le@company.com', phone: '0934567890', role: 'employee', status: 'active',
+                    joinDate: '2021-06-01' },
+                { id: 4, code: 'NV004', name: 'Phạm Thị Dung', department: 'Phòng Nhân sự', position: 'Chuyên viên',
+                    email: 'dung.pham@company.com', phone: '0945678901', role: 'admin', status: 'active',
+                    joinDate: '2021-08-10' },
+                { id: 5, code: 'NV005', name: 'Hoàng Văn Em', department: 'Phòng Tài chính', position: 'Nhân viên',
+                    email: 'em.hoang@company.com', phone: '0956789012', role: 'employee', status: 'inactive',
+                    joinDate: '2019-11-01' },
+                { id: 6, code: 'NV006', name: 'Vũ Thị Phương', department: 'Phòng Marketing', position: 'Trưởng phòng',
+                    email: 'phuong.vu@company.com', phone: '0967890123', role: 'manager', status: 'active',
+                    joinDate: '2020-05-15' },
+                { id: 7, code: 'NV007', name: 'Đặng Văn Hải', department: 'Phòng Kỹ thuật', position: 'Nhân viên',
+                    email: 'hai.dang@company.com', phone: '0978901234', role: 'employee', status: 'active',
+                    joinDate: '2022-02-20' },
+                { id: 8, code: 'NV008', name: 'Bùi Thị Lan', department: 'Phòng Kinh doanh', position: 'Nhân viên',
+                    email: 'lan.bui@company.com', phone: '0989012345', role: 'employee', status: 'active',
+                    joinDate: '2022-04-10' },
+                { id: 9, code: 'NV009', name: 'Ngô Văn Minh', department: 'Phòng Tài chính', position: 'Chuyên viên',
+                    email: 'minh.ngo@company.com', phone: '0990123456', role: 'employee', status: 'active',
+                    joinDate: '2021-09-01' },
+                { id: 10, code: 'NV010', name: 'Lý Thị Nga', department: 'Phòng Nhân sự', position: 'Nhân viên',
+                    email: 'nga.ly@company.com', phone: '0901234567', role: 'employee', status: 'active',
+                    joinDate: '2022-07-15' },
+                { id: 11, code: 'NV011', name: 'Trịnh Văn Phúc', department: 'Phòng Marketing', position: 'Chuyên viên',
+                    email: 'phuc.trinh@company.com', phone: '0912345679', role: 'employee', status: 'active',
+                    joinDate: '2023-01-05' },
+                { id: 12, code: 'NV012', name: 'Đỗ Thị Quỳnh', department: 'Phòng Kỹ thuật', position: 'Nhân viên',
+                    email: 'quynh.do@company.com', phone: '0923456780', role: 'employee', status: 'active',
+                    joinDate: '2023-03-20' },
+            ];
+
+            // State
+            let state = {
+                employees: [],
+                departments: [],
+                currentPage: 'dashboard',
+                lang: 'vi',
+                // Employee table state
+                empPage: 1,
+                empPageSize: 8,
+                empSearch: '',
+                empFilterDept: 'all',
+                empFilterRole: 'all',
+                empSortBy: 'id',
+                empSortDir: 'asc',
+                // Modal
+                modalMode: 'add', // 'add' | 'edit'
+                editingId: null,
+            };
+
+            // DOM refs
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            // ============================================================
+            // 2. I18N - ĐA NGÔN NGỮ
+            // ============================================================
+
+            const i18n = {
+                vi: {
+                    'nav.dashboard': 'Dashboard',
+                    'nav.employees': 'Nhân viên',
+                    'nav.attendance': 'Chấm công',
+                    'nav.leave': 'Nghỉ phép',
+                    'nav.payroll': 'Lương',
+                    'nav.settings': 'Cài đặt',
+                    'sidebar.main': 'Chính',
+                    'sidebar.system': 'Hệ thống',
+                    'dashboard.title': 'Tổng quan',
+                    'dashboard.subtitle': 'Chào mừng trở lại! Dưới đây là tình hình nhân sự hôm nay.',
+                    'dashboard.totalEmployees': 'Tổng nhân viên',
+                    'dashboard.present': 'Đi làm hôm nay',
+                    'dashboard.onLeave': 'Nghỉ phép',
+                    'dashboard.departments': 'Phòng ban',
+                    'dashboard.chartTitle': 'Nhân sự theo phòng ban',
+                    'dashboard.recentActivity': 'Hoạt động gần đây',
+                    'dashboard.recentPlaceholder': 'Chưa có hoạt động nào gần đây.',
+                    'employees.title': 'Quản lý nhân viên',
+                    'employees.subtitle': 'Danh sách nhân viên và thông tin chi tiết',
+                    'employees.add': 'Thêm nhân viên',
+                    'employees.addTitle': 'Thêm nhân viên',
+                    'employees.editTitle': 'Sửa nhân viên',
+                    'employees.code': 'Mã số',
+                    'employees.name': 'Họ tên',
+                    'employees.department': 'Phòng ban',
+                    'employees.position': 'Vị trí',
+                    'employees.role': 'Vai trò',
+                    'employees.status': 'Trạng thái',
+                    'employees.actions': 'Thao tác',
+                    'employees.email': 'Email',
+                    'employees.phone': 'Số điện thoại',
+                    'employees.joinDate': 'Ngày vào làm',
+                    'employees.searchPlaceholder': 'Tìm kiếm theo tên, mã số, phòng ban...',
+                    'employees.allDepts': 'Tất cả phòng ban',
+                    'employees.allRoles': 'Tất cả vai trò',
+                    'employees.clearFilters': 'Xóa lọc',
+                    'employees.codeRequired': 'Vui lòng nhập mã số nhân viên.',
+                    'employees.nameRequired': 'Vui lòng nhập họ tên nhân viên.',
+                    'employees.deptRequired': 'Vui lòng chọn phòng ban.',
+                    'employees.positionRequired': 'Vui lòng nhập vị trí công việc.',
+                    'employees.emailRequired': 'Vui lòng nhập email hợp lệ.',
+                    'employees.roleRequired': 'Vui lòng chọn vai trò.',
+                    'employees.deleteConfirm': 'Bạn có chắc muốn xóa nhân viên "{name}"?',
+                    'employees.deleteSuccess': 'Đã xóa nhân viên thành công.',
+                    'employees.saveSuccess': 'Lưu nhân viên thành công.',
+                    'employees.codeExists': 'Mã số nhân viên đã tồn tại. Vui lòng nhập mã khác.',
+                    'attendance.title': 'Chấm công',
+                    'attendance.placeholder': 'Tính năng đang được phát triển. Vui lòng quay lại sau.',
+                    'leave.title': 'Quản lý nghỉ phép',
+                    'leave.placeholder': 'Tính năng đang được phát triển. Vui lòng quay lại sau.',
+                    'payroll.title': 'Quản lý lương',
+                    'payroll.placeholder': 'Tính năng đang được phát triển. Vui lòng quay lại sau.',
+                    'settings.title': 'Cài đặt',
+                    'settings.placeholder': 'Cấu hình thông tin công ty, phòng ban, vị trí.',
+                    'common.cancel': 'Hủy',
+                    'common.save': 'Lưu',
+                    'common.refresh': 'Làm mới',
+                    'common.edit': 'Sửa',
+                    'common.delete': 'Xóa',
+                    'common.view': 'Xem',
+                    'common.loading': 'Đang tải...',
+                    'common.noData': 'Không có dữ liệu.',
+                    'pagination.showing': 'Hiển thị {start}-{end} / {total}',
+                    'status.active': 'Đang làm việc',
+                    'status.inactive': 'Đã nghỉ',
+                    'role.admin': 'Admin/HR',
+                    'role.manager': 'Quản lý',
+                    'role.employee': 'Nhân viên',
+                },
+                en: {
+                    'nav.dashboard': 'Dashboard',
+                    'nav.employees': 'Employees',
+                    'nav.attendance': 'Attendance',
+                    'nav.leave': 'Leave',
+                    'nav.payroll': 'Payroll',
+                    'nav.settings': 'Settings',
+                    'sidebar.main': 'Main',
+                    'sidebar.system': 'System',
+                    'dashboard.title': 'Overview',
+                    'dashboard.subtitle': 'Welcome back! Here is today\'s HR summary.',
+                    'dashboard.totalEmployees': 'Total Employees',
+                    'dashboard.present': 'Present Today',
+                    'dashboard.onLeave': 'On Leave',
+                    'dashboard.departments': 'Departments',
+                    'dashboard.chartTitle': 'Employees by Department',
+                    'dashboard.recentActivity': 'Recent Activity',
+                    'dashboard.recentPlaceholder': 'No recent activity.',
+                    'employees.title': 'Employee Management',
+                    'employees.subtitle': 'Employee list and details',
+                    'employees.add': 'Add Employee',
+                    'employees.addTitle': 'Add Employee',
+                    'employees.editTitle': 'Edit Employee',
+                    'employees.code': 'ID',
+                    'employees.name': 'Full Name',
+                    'employees.department': 'Department',
+                    'employees.position': 'Position',
+                    'employees.role': 'Role',
+                    'employees.status': 'Status',
+                    'employees.actions': 'Actions',
+                    'employees.email': 'Email',
+                    'employees.phone': 'Phone',
+                    'employees.joinDate': 'Join Date',
+                    'employees.searchPlaceholder': 'Search by name, ID, department...',
+                    'employees.allDepts': 'All Departments',
+                    'employees.allRoles': 'All Roles',
+                    'employees.clearFilters': 'Clear Filters',
+                    'employees.codeRequired': 'Please enter employee ID.',
+                    'employees.nameRequired': 'Please enter employee name.',
+                    'employees.deptRequired': 'Please select a department.',
+                    'employees.positionRequired': 'Please enter job position.',
+                    'employees.emailRequired': 'Please enter a valid email.',
+                    'employees.roleRequired': 'Please select a role.',
+                    'employees.deleteConfirm': 'Are you sure you want to delete "{name}"?',
+                    'employees.deleteSuccess': 'Employee deleted successfully.',
+                    'employees.saveSuccess': 'Employee saved successfully.',
+                    'employees.codeExists': 'Employee ID already exists. Please enter a different ID.',
+                    'attendance.title': 'Attendance',
+                    'attendance.placeholder': 'Feature is under development. Please come back later.',
+                    'leave.title': 'Leave Management',
+                    'leave.placeholder': 'Feature is under development. Please come back later.',
+                    'payroll.title': 'Payroll',
+                    'payroll.placeholder': 'Feature is under development. Please come back later.',
+                    'settings.title': 'Settings',
+                    'settings.placeholder': 'Configure company info, departments, positions.',
+                    'common.cancel': 'Cancel',
+                    'common.save': 'Save',
+                    'common.refresh': 'Refresh',
+                    'common.edit': 'Edit',
+                    'common.delete': 'Delete',
+                    'common.view': 'View',
+                    'common.loading': 'Loading...',
+                    'common.noData': 'No data available.',
+                    'pagination.showing': 'Showing {start}-{end} / {total}',
+                    'status.active': 'Active',
+                    'status.inactive': 'Inactive',
+                    'role.admin': 'Admin/HR',
+                    'role.manager': 'Manager',
+                    'role.employee': 'Employee',
+                }
+            };
+
+            function t(key, vars) {
+                let txt = i18n[state.lang]?.[key] || key;
+                if (vars) {
+                    for (const [k, v] of Object.entries(vars)) {
+                        txt = txt.replace(`{${k}}`, v);
+                    }
+                }
+                return txt;
+            }
+
+            // ============================================================
+            // 3. DỮ LIỆU - LƯU TRỮ
+            // ============================================================
+
+            function loadData() {
+                let stored = localStorage.getItem('hr_employees');
+                if (stored) {
+                    try { state.employees = JSON.parse(stored); } catch (_) { state.employees = []; }
+                } else {
+                    state.employees = JSON.parse(JSON.stringify(SAMPLE_EMPLOYEES));
+                    saveData();
+                }
+
+                let depts = localStorage.getItem('hr_departments');
+                if (depts) {
+                    try { state.departments = JSON.parse(depts); } catch (_) { state.departments = [...DEFAULT_DEPARTMENTS]; }
+                } else {
+                    state.departments = [...DEFAULT_DEPARTMENTS];
+                    localStorage.setItem('hr_departments', JSON.stringify(state.departments));
+                }
+            }
+
+            function saveData() {
+                localStorage.setItem('hr_employees', JSON.stringify(state.employees));
+                localStorage.setItem('hr_departments', JSON.stringify(state.departments));
+            }
+
+            function getNextId() {
+                if (state.employees.length === 0) return 1;
+                return Math.max(...state.employees.map(e => e.id)) + 1;
+            }
+
+            function getDepartments() {
+                return state.departments;
+            }
+
+            function getEmployees() {
+                return state.employees;
+            }
+
+            // ============================================================
+            // 4. TOAST NOTIFICATIONS
+            // ============================================================
+
+            function showToast(message, type = 'info', duration = 3500) {
+                const container = document.getElementById('toastContainer');
+                const iconMap = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+                const icon = iconMap[type] || iconMap.info;
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <span class="toast-icon ${type}"><i class="${icon}"></i></span>
+                    <span class="toast-msg">${message}</span>
+                    <button class="toast-close" aria-label="Close notification">&times;</button>
+                `;
+                container.appendChild(toast);
+
+                const closeBtn = toast.querySelector('.toast-close');
+                const removeToast = () => {
+                    toast.classList.add('removing');
+                    setTimeout(() => { toast.remove(); }, 300);
+                };
+                closeBtn.addEventListener('click', removeToast);
+                setTimeout(removeToast, duration);
+
+                // Keyboard: close on Escape
+                const keyHandler = (e) => {
+                    if (e.key === 'Escape') {
+                        removeToast();
+                        document.removeEventListener('keydown', keyHandler);
+                    }
+                };
+                document.addEventListener('keydown', keyHandler);
+                // Focus the close button for accessibility
+                closeBtn.focus();
+            }
+
+            // ============================================================
+            // 5. RENDER: DASHBOARD
+            // ============================================================
+
+            function renderDashboard() {
+                const employees = getEmployees();
+                const total = employees.length;
+                const active = employees.filter(e => e.status === 'active').length;
+                const depts = getDepartments();
+
+                // Random stats for demo (simulate attendance)
+                const present = Math.round(active * (0.65 + Math.random() * 0.25));
+                const onLeave = Math.round(active * (0.05 + Math.random() * 0.10));
+                const presentPct = active > 0 ? Math.round((present / active) * 100) : 0;
+                const leavePct = active > 0 ? Math.round((onLeave / active) * 100) : 0;
+
+                document.getElementById('statTotalEmployees').textContent = total;
+                document.getElementById('statPresent').textContent = present;
+                document.getElementById('statOnLeave').textContent = onLeave;
+                document.getElementById('statDepartments').textContent = depts.length;
+                document.getElementById('statPresentPercent').textContent = presentPct + '%';
+                document.getElementById('statLeavePercent').textContent = leavePct + '%';
+
+                // Update badge
+                document.getElementById('empCountBadge').textContent = total;
+
+                // Chart: employees by department
+                const deptCounts = {};
+                depts.forEach(d => { deptCounts[d] = 0; });
+                employees.forEach(e => {
+                    if (deptCounts[e.department] !== undefined) deptCounts[e.department]++;
+                    else deptCounts[e.department] = 1;
+                });
+                // Include departments with 0 count
+                depts.forEach(d => { if (deptCounts[d] === undefined) deptCounts[d] = 0; });
+
+                const chartColors = ['#1a73e8', '#0f9d58', '#f4b400', '#7c3aed', '#d93025', '#00bcd4'];
+                const chartBars = document.getElementById('chartBars');
+                chartBars.innerHTML = '';
+                const entries = Object.entries(deptCounts);
+                const maxVal = Math.max(1, ...entries.map(([_, v]) => v));
+
+                entries.forEach(([dept, count], idx) => {
+                    const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
+                    const color = chartColors[idx % chartColors.length];
+                    const group = document.createElement('div');
+                    group.className = 'chart-bar-group';
+                    group.innerHTML = `
+                        <div class="bar-value">${count}</div>
+                        <div class="chart-bar" style="height:${Math.max(4, pct)}%;background:${color};"></div>
+                        <div class="bar-label">${dept}</div>
+                    `;
+                    chartBars.appendChild(group);
+                });
+            }
+
+            // ============================================================
+            // 6. RENDER: EMPLOYEE TABLE
+            // ============================================================
+
+            function renderEmployeeTable() {
+                const { empPage, empPageSize, empSearch, empFilterDept, empFilterRole, empSortBy, empSortDir } = state;
+
+                let employees = getEmployees();
+
+                // Search
+                if (empSearch.trim()) {
+                    const s = empSearch.trim().toLowerCase();
+                    employees = employees.filter(e =>
+                        e.code.toLowerCase().includes(s) ||
+                        e.name.toLowerCase().includes(s) ||
+                        e.department.toLowerCase().includes(s) ||
+                        e.position.toLowerCase().includes(s)
+                    );
+                }
+
+                // Filter dept
+                if (empFilterDept !== 'all') {
+                    employees = employees.filter(e => e.department === empFilterDept);
+                }
+
+                // Filter role
+                if (empFilterRole !== 'all') {
+                    employees = employees.filter(e => e.role === empFilterRole);
+                }
+
+                // Sort
+                employees.sort((a, b) => {
+                    let va = a[empSortBy] ?? '';
+                    let vb = b[empSortBy] ?? '';
+                    if (typeof va === 'string') va = va.toLowerCase();
+                    if (typeof vb === 'string') vb = vb.toLowerCase();
+                    if (va < vb) return empSortDir === 'asc' ? -1 : 1;
+                    if (va > vb) return empSortDir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                const total = employees.length;
+                const totalPages = Math.max(1, Math.ceil(total / empPageSize));
+                const page = Math.min(empPage, totalPages);
+                const start = (page - 1) * empPageSize;
+                const end = Math.min(start + empPageSize, total);
+                const pageEmployees = employees.slice(start, end);
+
+                // Update pagination info
+                const info = document.getElementById('paginationInfo');
+                info.textContent = total > 0 ?
+                    t('pagination.showing', { start: start + 1, end: end, total: total }) :
+                    t('common.noData');
+
+                // Table body
+                const tbody = document.getElementById('employeeTableBody');
+                if (pageEmployees.length === 0) {
+                    tbody.innerHTML = `
+                        <tr><td colspan="7" style="text-align:center;padding:40px 0;color:var(--text-light);">
+                            <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                            ${t('common.noData')}
+                        </td></tr>
+                    `;
+                } else {
+                    tbody.innerHTML = pageEmployees.map(e => {
+                        const statusLabel = t(`status.${e.status}`);
+                        const statusClass = e.status === 'active' ? 'active' : 'inactive';
+                        const roleLabel = t(`role.${e.role}`);
+                        const roleClass = e.role;
+                        return `
+                            <tr>
+                                <td><strong>${e.code}</strong></td>
+                                <td>${e.name}</td>
+                                <td>${e.department}</td>
+                                <td>${e.position}</td>
+                                <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
+                                <td><span class="status-badge ${statusClass}"><i class="fas fa-circle" style="font-size:0.45rem;"></i> ${statusLabel}</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="btn btn-primary btn-sm edit-employee" data-id="${e.id}" title="${t('common.edit')}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm delete-employee" data-id="${e.id}" title="${t('common.delete')}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                // Pagination controls
+                const controls = document.getElementById('paginationControls');
+                let html = '';
+                html +=
+                    `<button class="page-prev" data-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="${i === page ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                }
+                html +=
+                    `<button class="page-next" data-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+                controls.innerHTML = html;
+
+                // Event listeners for pagination
+                controls.querySelectorAll('button[data-page]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const p = parseInt(btn.dataset.page);
+                        if (p >= 1 && p <= totalPages) {
+                            state.empPage = p;
+                            renderEmployeeTable();
+                        }
+                    });
+                });
+
+                // Update badge
+                document.getElementById('empCountBadge').textContent = getEmployees().length;
+
+                // Re-bind edit/delete
+                tbody.querySelectorAll('.edit-employee').forEach(btn => {
+                    btn.addEventListener('click', () => openEditModal(parseInt(btn.dataset.id)));
+                });
+                tbody.querySelectorAll('.delete-employee').forEach(btn => {
+                    btn.addEventListener('click', () => deleteEmployee(parseInt(btn.dataset.id)));
+                });
+            }
+
+            // ============================================================
+            // 7. EMPLOYEE CRUD
+            // ============================================================
+
+            function deleteEmployee(id) {
+                const emp = state.employees.find(e => e.id === id);
+                if (!emp) return;
+                if (!confirm(t('employees.deleteConfirm', { name: emp.name }))) return;
+
+                state.employees = state.employees.filter(e => e.id !== id);
+                saveData();
+                showToast(t('employees.deleteSuccess'), 'success');
+                renderEmployeeTable();
+                renderDashboard();
+            }
+
+            function openAddModal() {
+                state.modalMode = 'add';
+                state.editingId = null;
+                document.getElementById('modalTitle').textContent = t('employees.addTitle');
+                document.getElementById('editId').value = '';
+                document.getElementById('employeeForm').reset();
+                // Clear errors
+                document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+                // Generate next code
+                const maxCode = state.employees.reduce((max, e) => {
+                    const num = parseInt(e.code.replace(/\D/g, ''));
+                    return num > max ? num : max;
+                }, 0);
+                const nextNum = String(maxCode + 1).padStart(3, '0');
+                document.getElementById('empCode').value = `NV${nextNum}`;
+                document.getElementById('empCode').readOnly = false;
+                populateDeptSelect();
+                document.getElementById('empDepartment').value = '';
+                document.getElementById('employeeModal').classList.add('open');
+                document.getElementById('empName').focus();
+                // Trap focus
+                trapModalFocus('employeeModal');
+            }
+
+            function openEditModal(id) {
+                const emp = state.employees.find(e => e.id === id);
+                if (!emp) return;
+                state.modalMode = 'edit';
+                state.editingId = id;
+                document.getElementById('modalTitle').textContent = t('employees.editTitle');
+                document.getElementById('editId').value = id;
+                document.getElementById('empCode').value = emp.code;
+                document.getElementById('empCode').readOnly = true;
+                document.getElementById('empName').value = emp.name;
+                document.getElementById('empPosition').value = emp.position;
+                document.getElementById('empEmail').value = emp.email;
+                document.getElementById('empPhone').value = emp.phone || '';
+                document.getElementById('empJoinDate').value = emp.joinDate || '';
+                populateDeptSelect();
+                document.getElementById('empDepartment').value = emp.department;
+                document.getElementById('empRole').value = emp.role;
+                document.getElementById('empStatus').value = emp.status;
+                document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+                document.getElementById('employeeModal').classList.add('open');
+                document.getElementById('empName').focus();
+                trapModalFocus('employeeModal');
+            }
+
+            function populateDeptSelect() {
+                const sel = document.getElementById('empDepartment');
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">-- Chọn --</option>';
+                getDepartments().forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    sel.appendChild(opt);
+                });
+                if (currentVal) sel.value = currentVal;
+            }
+
+            function closeModal() {
+                document.getElementById('employeeModal').classList.remove('open');
+                document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+                releaseModalFocus();
+            }
+
+            function saveEmployee() {
+                const form = document.getElementById('employeeForm');
+                const code = document.getElementById('empCode').value.trim();
+                const name = document.getElementById('empName').value.trim();
+                const department = document.getElementById('empDepartment').value;
+                const position = document.getElementById('empPosition').value.trim();
+                const email = document.getElementById('empEmail').value.trim();
+                const phone = document.getElementById('empPhone').value.trim();
+                const role = document.getElementById('empRole').value;
+                const status = document.getElementById('empStatus').value;
+                const joinDate = document.getElementById('empJoinDate').value;
+                const editId = document.getElementById('editId').value;
+
+                // Validate
+                let hasError = false;
+                const fields = [
+                    { id: 'empCode', msg: 'codeRequired' },
+                    { id: 'empName', msg: 'nameRequired' },
+                    { id: 'empDepartment', msg: 'deptRequired' },
+                    { id: 'empPosition', msg: 'positionRequired' },
+                    { id: 'empEmail', msg: 'emailRequired' },
+                    { id: 'empRole', msg: 'roleRequired' },
+                ];
+                fields.forEach(f => {
+                    const el = document.getElementById(f.id);
+                    const group = el.closest('.form-group');
+                    const val = el.value.trim();
+                    if (!val) {
+                        group.classList.add('has-error');
+                        hasError = true;
+                    } else {
+                        group.classList.remove('has-error');
+                    }
+                });
+                // Email validation
+                const emailEl = document.getElementById('empEmail');
+                const emailGroup = emailEl.closest('.form-group');
+                if (emailEl.value.trim() && !emailEl.value.includes('@')) {
+                    emailGroup.classList.add('has-error');
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    showToast('Vui lòng điền đầy đủ thông tin bắt buộc.', 'error');
+                    return;
+                }
+
+                // Check code uniqueness (for add)
+                if (!editId) {
+                    const exists = state.employees.some(e => e.code === code);
+                    if (exists) {
+                        const group = document.getElementById('empCode').closest('.form-group');
+                        group.classList.add('has-error');
+                        // Show custom error
+                        const err = group.querySelector('.error-text');
+                        err.textContent = t('employees.codeExists');
+                        err.style.display = 'block';
+                        showToast(t('employees.codeExists'), 'error');
+                        return;
+                    }
+                }
+
+                const data = { code, name, department, position, email, phone, role, status, joinDate };
+
+                if (editId) {
+                    // Edit
+                    const idx = state.employees.findIndex(e => e.id === parseInt(editId));
+                    if (idx !== -1) {
+                        state.employees[idx] = { ...state.employees[idx], ...data };
+                    }
+                } else {
+                    // Add
+                    data.id = getNextId();
+                    state.employees.push(data);
+                }
+
+                saveData();
+                closeModal();
+                showToast(t('employees.saveSuccess'), 'success');
+                renderEmployeeTable();
+                renderDashboard();
+            }
+
+            // ============================================================
+            // 8. MODAL FOCUS TRAP (keyboard accessibility)
+            // ============================================================
+
+            let modalFocusElements = [];
+            let modalFocusListener = null;
+
+            function trapModalFocus(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                const focusable = modal.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                modalFocusElements = Array.from(focusable);
+                if (modalFocusElements.length === 0) return;
+
+                const first = modalFocusElements[0];
+                const last = modalFocusElements[modalFocusElements.length - 1];
+
+                if (modalFocusListener) {
+                    document.removeEventListener('keydown', modalFocusListener);
+                }
+                modalFocusListener = (e) => {
+                    if (e.key !== 'Tab') return;
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) {
+                            e.preventDefault();
+                            last.focus();
+                        }
+                    } else {
+                        if (document.activeElement === last) {
+                            e.preventDefault();
+                            first.focus();
+                        }
+                    }
+                };
+                document.addEventListener('keydown', modalFocusListener);
+                setTimeout(() => first.focus(), 50);
+            }
+
+            function releaseModalFocus() {
+                if (modalFocusListener) {
+                    document.removeEventListener('keydown', modalFocusListener);
+                    modalFocusListener = null;
+                }
+                modalFocusElements = [];
+            }
+
+            // ============================================================
+            // 9. NAVIGATION & ROUTING
+            // ============================================================
+
+            function navigateTo(page) {
+                // Hide all pages
+                document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+                const target = document.getElementById(`page-${page}`);
+                if (target) target.classList.add('active');
+
+                // Update nav links
+                document.querySelectorAll('.navbar-menu .nav-link, .sidebar-menu .menu-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.page === page);
+                });
+
+                state.currentPage = page;
+
+                // Render content
+                if (page === 'dashboard') renderDashboard();
+                if (page === 'employees') renderEmployeeTable();
+
+                // Close mobile sidebar & menu
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('navbarMenu').classList.remove('open');
+                document.getElementById('hamburgerBtn').setAttribute('aria-expanded', 'false');
+
+                // Scroll to top
+                document.getElementById('mainContent').scrollTop = 0;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ============================================================
+            // 10. LANGUAGE SWITCH
+            // ============================================================
+
+            function setLanguage(lang) {
+                if (lang === state.lang) return;
+                state.lang = lang;
+                document.querySelectorAll('.lang-toggle button').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                    btn.setAttribute('aria-pressed', btn.dataset.lang === lang);
+                });
+                // Update all i18n elements
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    el.textContent = t(key);
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.dataset.i18nPlaceholder;
+                    el.placeholder = t(key);
+                });
+                // Re-render current page
+                if (state.currentPage === 'dashboard') renderDashboard();
+                if (state.currentPage === 'employees') {
+                    renderEmployeeTable();
+                    // Update modal title if open
+                    const modal = document.getElementById('employeeModal');
+                    if (modal.classList.contains('open')) {
+                        const title = document.getElementById('modalTitle');
+                        title.textContent = state.modalMode === 'add' ? t('employees.addTitle') : t('employees.editTitle');
+                    }
+                }
+                // Update badges and status labels that are dynamic
+                // We re-render table which handles status/role labels
+            }
+
+            // ============================================================
+            // 11. INIT - SETUP EVENTS
+            // ============================================================
+
+            function init() {
+                loadData();
+
+                // ---- Navigation ----
+                document.querySelectorAll('.navbar-menu .nav-link, .sidebar-menu .menu-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const page = el.dataset.page;
+                        if (page) navigateTo(page);
+                    });
+                    // Keyboard Enter/Space support
+                    el.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const page = el.dataset.page;
+                            if (page) navigateTo(page);
+                        }
+                    });
+                });
+
+                // ---- Hamburger ----
+                const hamburger = document.getElementById('hamburgerBtn');
+                hamburger.addEventListener('click', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    const menu = document.getElementById('navbarMenu');
+                    const isOpen = sidebar.classList.toggle('open');
+                    menu.classList.toggle('open');
+                    hamburger.setAttribute('aria-expanded', isOpen);
+                });
+                // Close sidebar on outside click (mobile)
+                document.addEventListener('click', (e) => {
+                    const sidebar = document.getElementById('sidebar');
+                    const hamburger = document.getElementById('hamburgerBtn');
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            document.getElementById('navbarMenu').classList.remove('open');
+                            hamburger.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+
+                // ---- Language ----
+                document.querySelectorAll('.lang-toggle button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setLanguage(btn.dataset.lang);
+                    });
+                });
+
+                // ---- Modal ----
+                document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+                document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+                document.getElementById('employeeModal').addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) closeModal();
+                });
+                document.getElementById('modalSaveBtn').addEventListener('click', saveEmployee);
+
+                // Enter key on form
+                document.getElementById('employeeForm').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEmployee();
+                    }
+                });
+
+                // ---- Add employee ----
+                document.getElementById('addEmployeeBtn').addEventListener('click', openAddModal);
+
+                // ---- Search & Filters ----
+                const searchInput = document.getElementById('empSearch');
+                let searchTimeout;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        state.empSearch = searchInput.value;
+                        state.empPage = 1;
+                        renderEmployeeTable();
+                    }, 300);
+                });
+
+                document.getElementById('empFilterDept').addEventListener('change', (e) => {
+                    state.empFilterDept = e.target.value;
+                    state.empPage = 1;
+                    renderEmployeeTable();
+                });
+                document.getElementById('empFilterRole').addEventListener('change', (e) => {
+                    state.empFilterRole = e.target.value;
+                    state.empPage = 1;
+                    renderEmployeeTable();
+                });
+
+                document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+                    document.getElementById('empSearch').value = '';
+                    document.getElementById('empFilterDept').value = 'all';
+                    document.getElementById('empFilterRole').value = 'all';
+                    state.empSearch = '';
+                    state.empFilterDept = 'all';
+                    state.empFilterRole = 'all';
+                    state.empPage = 1;
+                    renderEmployeeTable();
+                });
+
+                // ---- Table sort ----
+                document.querySelectorAll('#page-employees .table-wrap th[data-sort]').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const key = th.dataset.sort;
+                        if (state.empSortBy === key) {
+                            state.empSortDir = state.empSortDir === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            state.empSortBy = key;
+                            state.empSortDir = 'asc';
+                        }
+                        state.empPage = 1;
+                        renderEmployeeTable();
+                    });
+                    th.setAttribute('role', 'button');
+                    th.setAttribute('tabindex', '0');
+                });
+
+                // ---- Refresh dashboard ----
+                document.getElementById('refreshDashboardBtn').addEventListener('click', () => {
+                    showToast('Đã làm mới dữ liệu.', 'success');
+                    renderDashboard();
+                });
+
+                // ---- Keyboard: Escape closes modal ----
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (document.getElementById('employeeModal').classList.contains('open')) {
+                            closeModal();
+                        }
+                    }
+                });
+
+                // ---- Populate department filter ----
+                function populateDeptFilter() {
+                    const sel = document.getElementById('empFilterDept');
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="all">' + t('employees.allDepts') + '</option>';
+                    getDepartments().forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        sel.appendChild(opt);
+                    });
+                    if (current) sel.value = current;
+                }
+
+                // Also populate modal dept select
+                const origPopulate = populateDeptSelect;
+                populateDeptSelect = function() {
+                    const sel = document.getElementById('empDepartment');
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="">-- Chọn --</option>';
+                    getDepartments().forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        sel.appendChild(opt);
+                    });
+                    if (current) sel.value = current;
+                };
+                // Override for filter too
+                const origFilterPopulate = () => {
+                    const sel = document.getElementById('empFilterDept');
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="all">' + t('employees.allDepts') + '</option>';
+                    getDepartments().forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        sel.appendChild(opt);
+                    });
+                    if (current && current !== 'all') sel.value = current;
+                    else sel.value = 'all';
+                };
+                // Patch: after language change we need to re-populate
+                const origSetLang = setLanguage;
+                setLanguage = function(lang) {
+                    origSetLang(lang);
+                    // Re-populate filters with new language
+                    const sel = document.getElementById('empFilterDept');
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="all">' + t('employees.allDepts') + '</option>';
+                    getDepartments().forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        sel.appendChild(opt);
+                    });
+                    if (current && current !== 'all') sel.value = current;
+                    else sel.value = 'all';
+                };
+
+                // ---- Initial render ----
+                populateDeptFilter();
+                populateDeptSelect();
+                // Set initial language
+                document.querySelector('.lang-toggle button.active')?.click();
+
+                // Navigate to dashboard
+                navigateTo('dashboard');
+
+                // ---- Keyboard shortcut: Ctrl+1,2,3... for nav ----
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
+                        e.preventDefault();
+                        const pages = ['dashboard', 'employees', 'attendance', 'leave', 'payroll', 'settings'];
+                        const idx = parseInt(e.key) - 1;
+                        if (pages[idx]) navigateTo(pages[idx]);
+                    }
+                });
+
+                console.log('✅ HR Manager initialized successfully.');
+                console.log('📊 Total employees:', getEmployees().length);
+                console.log('🏢 Departments:', getDepartments());
+                console.log('🌐 Language:', state.lang);
+                console.log('💡 Tips: Ctrl+1 Dashboard, Ctrl+2 Employees, Esc to close modal');
+            }
+
+            // ---- Run when DOM ready ----
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+
+</body>
+</html>
